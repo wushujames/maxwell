@@ -119,7 +119,7 @@ public abstract class MaxwellAbstractRowsEvent extends AbstractRowEvent {
 	private LinkedList<Row> filteredRows;
 	private boolean performedFilter = false;
 
-	protected List<Row> filteredRows() {
+	public List<Row> filteredRows() {
 		if ( this.filter == null )
 			return getRows();
 
