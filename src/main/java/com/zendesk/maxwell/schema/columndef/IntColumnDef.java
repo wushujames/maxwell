@@ -21,7 +21,7 @@ public class IntColumnDef extends ColumnDef {
 			return i;
 	}
 
-	private Long toLong(Object value) {
+	public Long toLong(Object value) {
 		Integer i = (Integer) value;
 
 		if (signed)
