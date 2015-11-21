@@ -50,14 +50,18 @@ public class StringColumnDef extends ColumnDef {
 	}
 	@Override
 	public Object asJSON(Object value) {
-		byte[] b = (byte[])value;
+		return toString(value);
+	}
+
+    public String toString(Object value) {
+        byte[] b = (byte[])value;
 
 		if ( encoding.equals("binary") ) {
 			return Base64.encodeBase64String(b);
 		} else {
 			return new String(b, charsetForEncoding());
 		}
-	}
+    }
 
 	private String quoteString(String s) {
 		String escaped = StringEscapeUtils.escapeSql(s);
