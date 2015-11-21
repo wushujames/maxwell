@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import com.google.code.or.common.util.MySQLConstants;
 import com.zendesk.maxwell.schema.columndef.BigIntColumnDef;
 import com.zendesk.maxwell.schema.columndef.ColumnDef;
+import com.zendesk.maxwell.schema.columndef.ColumnType;
 import com.zendesk.maxwell.schema.columndef.DateColumnDef;
 import com.zendesk.maxwell.schema.columndef.DateTimeColumnDef;
 import com.zendesk.maxwell.schema.columndef.FloatColumnDef;
@@ -26,7 +28,7 @@ import com.zendesk.maxwell.schema.columndef.IntColumnDef;
 import com.zendesk.maxwell.schema.columndef.StringColumnDef;
 
 public class ColumnDefTest {
-	private ColumnDef build(String type, boolean signed) {
+	private ColumnDef build(ColumnType type, boolean signed) {
 		return ColumnDef.build("foo", "bar", "", type, 1, signed, null);
 	}
 
@@ -40,69 +42,69 @@ public class ColumnDefTest {
 
 	@Test
 	public void testTinyInt() {
-		ColumnDef d = build("tinyint", true);
+		ColumnDef d = build(ColumnType.TINYINT, true);
 
 		assertThat(d, instanceOf(IntColumnDef.class));
 		assertThat(d.toSQL(Integer.valueOf(5)), is("5"));
 		assertThat(d.toSQL(Integer.valueOf(-5)), is("-5"));
 
-		d = build("tinyint", false);
+		d = build(ColumnType.TINYINT, false);
 		assertThat(d.toSQL(Integer.valueOf(10)), is("10"));
 		assertThat(d.toSQL(Integer.valueOf(-10)), is("246"));
 	}
 
 	@Test
 	public void testShortInt() {
-		ColumnDef d = build("smallint", true);
+		ColumnDef d = build(ColumnType.SMALLINT, true);
 
 		assertThat(d, instanceOf(IntColumnDef.class));
 		assertThat(d.toSQL(Integer.valueOf(5)), is("5"));
 		assertThat(d.toSQL(Integer.valueOf(-5)), is("-5"));
 
-		d = build("smallint", false);
+		d = build(ColumnType.SMALLINT, false);
 		assertThat(d.toSQL(Integer.valueOf(-10)), is("65526"));
 	}
 
 	@Test
 	public void testMediumInt() {
-		ColumnDef d = build("mediumint", true);
+		ColumnDef d = build(ColumnType.MEDIUMINT, true);
 
 		assertThat(d, instanceOf(IntColumnDef.class));
 		assertThat(d.toSQL(Integer.valueOf(5)), is("5"));
 		assertThat(d.toSQL(Integer.valueOf(-5)), is("-5"));
 
-		d = build("mediumint", false);
+		d = build(ColumnType.MEDIUMINT, false);
 		assertThat(d.toSQL(Integer.valueOf(-10)), is("16777206"));
 
 	}
 
 	@Test
 	public void testInt() {
-		ColumnDef d = build("int", true);
+		ColumnDef d = build(ColumnType.INT, true);
 
 		assertThat(d, instanceOf(IntColumnDef.class));
 		assertThat(d.toSQL(Integer.valueOf(5)), is("5"));
 		assertThat(d.toSQL(Integer.valueOf(-5)), is("-5"));
 
-		d = build("int", false);
+		d = build(ColumnType.INT, false);
 		assertThat(d.toSQL(Integer.valueOf(-10)), is("4294967286"));
 	}
 
 	@Test
 	public void testBigInt() {
-		ColumnDef d = build("bigint", true);
+		ColumnDef d = build(ColumnType.BIGINT, true);
 
 		assertThat(d, instanceOf(BigIntColumnDef.class));
 		assertThat(d.toSQL(Long.valueOf(5)), is("5"));
 		assertThat(d.toSQL(Long.valueOf(-5)), is("-5"));
 
-		d = build("bigint", false);
+		d = build(ColumnType.BIGINT, false);
 		assertThat(d.toSQL(Long.valueOf(-10)), is("18446744073709551606"));
 	}
 
 	@Test
 	public void testUTF8String() {
-		ColumnDef d = ColumnDef.build("foo", "bar", "utf8", "varchar", 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "utf8", ColumnType.VARCHAR, 1, false, null);
 
 		assertThat(d, instanceOf(StringColumnDef.class));
 		byte input[] = "He∆˚ß∆".getBytes();
@@ -113,7 +115,7 @@ public class ColumnDefTest {
 	public void TestUTF8MB4String() {
 		String utf8_4 = "😁";
 
-		ColumnDef d = ColumnDef.build("foo", "bar", "utf8mb4", "varchar", 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "utf8mb4", ColumnType.VARCHAR, 1, false, null);
 		byte input[] = utf8_4.getBytes();
 		assertThat(d.toSQL(input), is("'😁'"));
 	}
@@ -126,7 +128,7 @@ public class ColumnDefTest {
 		input[2] = Byte.valueOf((byte) 126);
 		input[3] = Byte.valueOf((byte) 126);
 
-		ColumnDef d = ColumnDef.build("foo", "bar", "ascii", "varchar", 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "ascii", ColumnType.VARCHAR, 1, false, null);
 		assertThat((String) d.asJSON(input), is("~~~~"));
 	}
 
@@ -138,14 +140,14 @@ public class ColumnDefTest {
 		input[2] = Byte.valueOf((byte) 169);
 		input[3] = Byte.valueOf((byte) 169);
 
-		ColumnDef d = ColumnDef.build("foo", "bar", "latin1", "varchar", 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "latin1", ColumnType.VARCHAR, 1, false, null);
 
 		assertThat((String) d.asJSON(input), is("©©©©"));
 	}
 
 	@Test
 	public void TestFloat() {
-		ColumnDef d = build("float", true);
+		ColumnDef d = build(ColumnType.FLOAT, true);
 		assertThat(d, instanceOf(FloatColumnDef.class));
 
 		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_FLOAT));
@@ -154,8 +156,9 @@ public class ColumnDefTest {
 		assertThat(d.toSQL(Float.valueOf(1.2f)), is("1.2"));
 	}
 
+	@Test
 	public void TestDouble() {
-		ColumnDef d = build("double", true);
+		ColumnDef d = build(ColumnType.DOUBLE, true);
 		assertThat(d, instanceOf(FloatColumnDef.class));
 
 		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_DOUBLE));
@@ -165,34 +168,40 @@ public class ColumnDefTest {
 		assertThat(d.toSQL(Double.valueOf(Double.MAX_VALUE)), is(maxDouble));
 	}
 
+	@Test
 	public void TestDate() {
-		ColumnDef d = build("date", true);
+		ColumnDef d = build(ColumnType.DATE, true);
 		assertThat(d, instanceOf(DateColumnDef.class));
 
 		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_DATE));
 
 		Date date = new GregorianCalendar(1979, 10, 1).getTime();
-		assertThat(d.toSQL(date), is("1979-10-01"));
+		assertThat(d.toSQL(date), is("''1979-11-01''"));
 	}
 
+	@Test
 	public void TestDateTime() throws ParseException {
-		ColumnDef d = build("datetime", true);
+		ColumnDef d = build(ColumnType.DATETIME, true);
 		assertThat(d, instanceOf(DateTimeColumnDef.class));
 
-		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_DATE));
+		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_DATETIME));
 
-		Date date = new SimpleDateFormat().parse("1979-10-01 19:19:19");
+		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = simpleDateFormat.parse("1979-10-01 19:19:19");
 		assertThat(d.toSQL(date), is("'1979-10-01 19:19:19'"));
 	}
 
+	@Test
 	public void TestTimestamp() throws ParseException {
-		ColumnDef d = build("timestamp", true);
+		ColumnDef d = build(ColumnType.TIMESTAMP, true);
 		assertThat(d, instanceOf(DateTimeColumnDef.class));
 
 		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_TIMESTAMP));
 
 		Timestamp t = new Timestamp(284066359);
-		assertThat(d.toSQL(t), is("'1979-10-01 19:19:19'"));
+		assertThat(d.toSQL(t), is("'1970-01-04 06:54:26'"));
 	}
 
 }

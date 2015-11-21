@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.zendesk.maxwell.schema.columndef.BigIntColumnDef;
+import com.zendesk.maxwell.schema.columndef.ColumnType;
 import com.zendesk.maxwell.schema.columndef.IntColumnDef;
 import com.zendesk.maxwell.schema.columndef.StringColumnDef;
 
@@ -77,7 +78,7 @@ public class DDLParserTest {
 		assertThat(m.definition, instanceOf(IntColumnDef.class));
 		IntColumnDef i = (IntColumnDef) m.definition;
 		assertThat(i.getName(), is("int"));
-		assertThat(i.getType(), is("int"));
+		assertThat(i.getType(), is(ColumnType.INT));
 		assertThat(i.getSigned(), is(false));
 	}
 
@@ -90,7 +91,7 @@ public class DDLParserTest {
 		assertThat(m.definition.getTableName(), is("fie"));
 
 		BigIntColumnDef b = (BigIntColumnDef) m.definition;
-		assertThat(b.getType(), is("bigint"));
+		assertThat(b.getType(), is(ColumnType.BIGINT));
 		assertThat(b.getSigned(), is(true));
 		assertThat(b.getName(), is("baz"));
 	}
@@ -104,7 +105,7 @@ public class DDLParserTest {
 		assertThat(m.definition.getTableName(), is("no"));
 
 		StringColumnDef b = (StringColumnDef) m.definition;
-		assertThat(b.getType(), is("varchar"));
+		assertThat(b.getType(), is(ColumnType.VARCHAR));
 		assertThat(b.getEncoding(), is("latin1"));
 	}
 
@@ -114,7 +115,7 @@ public class DDLParserTest {
 
 		AddColumnMod m = (AddColumnMod) a.columnMods.get(0);
 		StringColumnDef b = (StringColumnDef) m.definition;
-		assertThat(b.getType(), is("text"));
+		assertThat(b.getType(), is(ColumnType.TEXT));
 		assertThat(b.getEncoding(), is("utf8"));
 	}
 
@@ -124,7 +125,7 @@ public class DDLParserTest {
 
 		AddColumnMod m = (AddColumnMod) a.columnMods.get(0);
 		StringColumnDef b = (StringColumnDef) m.definition;
-		assertThat(b.getType(), is("text"));
+		assertThat(b.getType(), is(ColumnType.TEXT));
 	}
 
 	@Test
@@ -140,7 +141,7 @@ public class DDLParserTest {
 
 		AddColumnMod m = (AddColumnMod) a.columnMods.get(0);
 		StringColumnDef b = (StringColumnDef) m.definition;
-		assertThat(b.getType(), is("text"));
+		assertThat(b.getType(), is(ColumnType.TEXT));
 		assertThat(b.getEncoding(), is("utf8"));
 	}
 
@@ -218,7 +219,7 @@ public class DDLParserTest {
 		ChangeColumnMod c = (ChangeColumnMod) a.columnMods.get(0);
 		assertThat(c.name, is("foo"));
 		assertThat(c.definition.getName(), is("bar"));
-		assertThat(c.definition.getType(), is("int"));
+		assertThat(c.definition.getType(), is(ColumnType.INT));
 	}
 
 	@Test
@@ -232,7 +233,7 @@ public class DDLParserTest {
 		assertThat(c.name, is("foo"));
 		assertThat(c.definition.getName(), is("foo"));
 
-		assertThat(c.definition.getType(), is("int"));
+		assertThat(c.definition.getType(), is(ColumnType.INT));
 	}
 
 

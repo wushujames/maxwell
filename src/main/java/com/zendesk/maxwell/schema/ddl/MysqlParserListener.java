@@ -7,6 +7,7 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ErrorNode;
 
 import com.zendesk.maxwell.schema.columndef.ColumnDef;
+import com.zendesk.maxwell.schema.columndef.ColumnType;
 import com.zendesk.maxwell.schema.ddl.mysqlParser.Column_optionsContext;
 import com.zendesk.maxwell.schema.ddl.mysqlParser.Enum_valueContext;
 import com.zendesk.maxwell.schema.ddl.mysqlParser.Index_columnContext;
@@ -279,7 +280,7 @@ public class MysqlParserListener extends mysqlBaseListener {
 		ColumnDef c = ColumnDef.build(this.tableName,
 					                   name,
 					                   colEncoding,
-					                   colType.toLowerCase(),
+					                   ColumnType.valueOf(colType.toUpperCase()),
 					                   -1,
 					                   signed,
 					                   enumValues);

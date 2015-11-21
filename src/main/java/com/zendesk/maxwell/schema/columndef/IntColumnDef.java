@@ -7,7 +7,7 @@ import com.google.code.or.common.util.MySQLConstants;
 public class IntColumnDef extends ColumnDef {
 	private final int bits;
 
-	public IntColumnDef(String tableName, String name, String type, int pos, boolean signed) {
+	public IntColumnDef(String tableName, String name, ColumnType type, int pos, boolean signed) {
 		super(tableName, name, type, pos);
 		this.signed = signed;
 		this.bits = bitsFromType(type);
@@ -57,15 +57,15 @@ public class IntColumnDef extends ColumnDef {
 		}
 	}
 
-	private final static int bitsFromType(String type) {
+	private final static int bitsFromType(ColumnType type) {
 		switch(type) {
-		case "tinyint":
+		case TINYINT:
 			return 8;
-		case "smallint":
+		case SMALLINT:
 			return 16;
-		case "mediumint":
+		case MEDIUMINT:
 			return 24;
-		case "int":
+		case INT:
 			return 32;
 		default:
 			return 0;

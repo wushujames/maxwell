@@ -7,7 +7,7 @@ import java.util.TimeZone;
 import com.google.code.or.common.util.MySQLConstants;
 
 public class DateColumnDef extends ColumnDef {
-	public DateColumnDef(String tableName, String name, String type, int pos) {
+	public DateColumnDef(String tableName, String name, ColumnType type, int pos) {
 		super(tableName, name, type, pos);
 	}
 

@@ -8,7 +8,7 @@ import java.util.TimeZone;
 import com.google.code.or.common.util.MySQLConstants;
 
 public class DateTimeColumnDef extends ColumnDef {
-	public DateTimeColumnDef(String tableName, String name, String type, int pos) {
+	public DateTimeColumnDef(String tableName, String name, ColumnType type, int pos) {
 		super(tableName, name, type, pos);
 	}
 
@@ -26,7 +26,7 @@ public class DateTimeColumnDef extends ColumnDef {
 
 	@Override
 	public boolean matchesMysqlType(int type) {
-		if ( getType().equals("datetime") ) {
+		if ( getType() == ColumnType.DATETIME ) {
 			return type == MySQLConstants.TYPE_DATETIME ||
 				   type == MySQLConstants.TYPE_DATETIME2;
 		} else {
@@ -36,7 +36,7 @@ public class DateTimeColumnDef extends ColumnDef {
 	}
 
 	private String formatValue(Object value) {
-		if ( value instanceof Long && getType().equals("datetime") )
+		if ( value instanceof Long && getType() == ColumnType.DATETIME )
 			return formatLong((Long) value);
 		else if ( value instanceof Date )
 			return getDateTimeFormatter().format((Date) value);

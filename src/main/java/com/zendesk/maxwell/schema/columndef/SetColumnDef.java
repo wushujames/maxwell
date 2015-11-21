@@ -7,7 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import com.google.code.or.common.util.MySQLConstants;
 
 public class SetColumnDef extends ColumnDef {
-	public SetColumnDef(String tableName, String name, String type, int pos, String[] enumValues) {
+	public SetColumnDef(String tableName, String name, ColumnType type, int pos, String[] enumValues) {
 		super(tableName, name, type, pos);
 		this.enumValues = enumValues;
 	}

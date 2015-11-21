@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.zendesk.maxwell.BinlogPosition;
 import com.zendesk.maxwell.schema.columndef.ColumnDef;
+import com.zendesk.maxwell.schema.columndef.ColumnType;
 import com.zendesk.maxwell.schema.ddl.SchemaSyncError;
 
 public class SchemaStore {
@@ -133,7 +134,7 @@ public class SchemaStore {
 					columnData.add(tableId);
 					columnData.add(c.getName());
 					columnData.add(c.getEncoding());
-					columnData.add(c.getType());
+					columnData.add(c.getType().name());
 					columnData.add(c.getSigned() ? 1 : 0);
 					columnData.add(enumValuesSQL);
 				}
@@ -289,7 +290,7 @@ public class SchemaStore {
 
 			ColumnDef c = ColumnDef.build(t.getName(),
 					cRS.getString("name"), cRS.getString("encoding"),
-					cRS.getString("coltype"), i++,
+					ColumnType.valueOf(cRS.getString("coltype")), i++,
 					cRS.getInt("is_signed") == 1,
 					enumValues);
 			t.addColumn(c);

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zendesk.maxwell.schema.columndef.ColumnDef;
+import com.zendesk.maxwell.schema.columndef.ColumnType;
 import com.zendesk.maxwell.schema.ddl.SchemaSyncError;
 
 public class SchemaCapturer {
@@ -118,7 +119,7 @@ public class SchemaCapturer {
 				enumValues = extractEnumValues(expandedType);
 			}
 
-			t.addColumn(ColumnDef.build(t.getName(), colName, colEnc, colType, colPos, colSigned, enumValues));
+			t.addColumn(ColumnDef.build(t.getName(), colName, colEnc, ColumnType.valueOf(colType.toUpperCase()), colPos, colSigned, enumValues));
 			i++;
 		}
 		captureTablePK(t);
