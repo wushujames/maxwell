@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.zendesk.maxwell.BinlogPosition;
 import com.zendesk.maxwell.schema.columndef.ColumnDef;
-import com.zendesk.maxwell.schema.columndef.ColumnType;
 import com.zendesk.maxwell.schema.ddl.SchemaSyncError;
 
 public class SchemaStore {
