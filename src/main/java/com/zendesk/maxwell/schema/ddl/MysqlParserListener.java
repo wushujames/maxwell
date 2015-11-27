@@ -280,7 +280,7 @@ public class MysqlParserListener extends mysqlBaseListener {
 		ColumnDef c = ColumnDef.build(this.tableName,
 					                   name,
 					                   colEncoding,
-					                   ColumnType.valueOf(colType.toUpperCase()),
+					                   colType,
 					                   -1,
 					                   signed,
 					                   enumValues);

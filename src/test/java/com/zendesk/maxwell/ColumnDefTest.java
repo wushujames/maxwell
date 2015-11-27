@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -29,7 +30,7 @@ import com.zendesk.maxwell.schema.columndef.StringColumnDef;
 
 public class ColumnDefTest {
 	private ColumnDef build(ColumnType type, boolean signed) {
-		return ColumnDef.build("foo", "bar", "", type, 1, signed, null);
+		return ColumnDef.build("foo", "bar", "", type.name().toLowerCase(), 1, signed, null);
 	}
 
 	@Before
@@ -40,6 +41,18 @@ public class ColumnDefTest {
 	public void tearDown() throws Exception {
 	}
 
+	@Test
+	public void testBadColumnType() {
+	    try {
+	       ColumnDef.build("foo", "bar", "", "unknown", 1, false, null);
+	       fail();
+	    } catch (Exception e) {
+	        assertThat(e, instanceOf(IllegalArgumentException.class));
+	        IllegalArgumentException e1 = (IllegalArgumentException) e;
+	        assertThat(e1.getMessage(), is("unsupported column type unknown"));
+	    }
+	}
+	
 	@Test
 	public void testTinyInt() {
 		ColumnDef d = build(ColumnType.TINYINT, true);
@@ -104,7 +117,7 @@ public class ColumnDefTest {
 
 	@Test
 	public void testUTF8String() {
-		ColumnDef d = ColumnDef.build("foo", "bar", "utf8", ColumnType.VARCHAR, 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "utf8", "varchar", 1, false, null);
 
 		assertThat(d, instanceOf(StringColumnDef.class));
 		byte input[] = "He∆˚ß∆".getBytes();
@@ -115,7 +128,7 @@ public class ColumnDefTest {
 	public void TestUTF8MB4String() {
 		String utf8_4 = "😁";
 
-		ColumnDef d = ColumnDef.build("foo", "bar", "utf8mb4", ColumnType.VARCHAR, 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "utf8mb4", "varchar", 1, false, null);
 		byte input[] = utf8_4.getBytes();
 		assertThat(d.toSQL(input), is("'😁'"));
 	}
@@ -128,7 +141,7 @@ public class ColumnDefTest {
 		input[2] = Byte.valueOf((byte) 126);
 		input[3] = Byte.valueOf((byte) 126);
 
-		ColumnDef d = ColumnDef.build("foo", "bar", "ascii", ColumnType.VARCHAR, 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "ascii", "varchar", 1, false, null);
 		assertThat((String) d.asJSON(input), is("~~~~"));
 	}
 
@@ -140,7 +153,7 @@ public class ColumnDefTest {
 		input[2] = Byte.valueOf((byte) 169);
 		input[3] = Byte.valueOf((byte) 169);
 
-		ColumnDef d = ColumnDef.build("foo", "bar", "latin1", ColumnType.VARCHAR, 1, false, null);
+		ColumnDef d = ColumnDef.build("foo", "bar", "latin1", "varchar", 1, false, null);
 
 		assertThat((String) d.asJSON(input), is("©©©©"));
 	}

@@ -25,11 +25,17 @@ public abstract class ColumnDef {
 	}
 
 	public ColumnDef copy() {
-		return build(this.tableName, this.name, this.encoding, this.type, this.pos, this.signed, this.enumValues);
+		return build(this.tableName, this.name, this.encoding, this.type.name(), this.pos, this.signed, this.enumValues);
 	}
 
-    public static ColumnDef build(String tableName, String name, String encoding, ColumnType type, int pos, boolean signed, String enumValues[]) {
-        type = unalias_type(type);
+    public static ColumnDef build(String tableName, String name, String encoding, String typeString, int pos, boolean signed, String enumValues[]) {
+        ColumnType type;
+        try {
+            String upperTypeString = unalias_type(typeString.toUpperCase());
+            type = ColumnType.valueOf(upperTypeString);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("unsupported column type " + typeString);
+        }
 
         switch(type) {
         case BOOL:
@@ -81,24 +87,24 @@ public abstract class ColumnDef {
             return new SetColumnDef(tableName, name, type, pos, enumValues);
         case BIT:
             return new BitColumnDef(tableName, name, type, pos);
-        default:
-            throw new IllegalArgumentException("unsupported column type " + type);
         }
+
+        throw new IllegalArgumentException("unsupported column type " + typeString);
     }
 
-	static private ColumnType unalias_type(ColumnType type) {
+	static private String unalias_type(String type) {
 		switch(type) {
-			case INT1:
-				return ColumnType.TINYINT;
-			case INT2:
-				return ColumnType.SMALLINT;
-			case INT3:
-				return ColumnType.MEDIUMINT;
-			case INT4:
-			case INTEGER:
-				return ColumnType.INT;
-			case INT8:
-				return ColumnType.BIGINT;
+			case "INT1":
+				return "TINYINT";
+			case "INT2":
+				return "SMALLINT";
+			case "INT3":
+				return "MEDIUMINT";
+			case "INT4":
+			case "INTEGER":
+				return "INT";
+			case "INT8":
+				return "BIGINT";
 			default:
 				return type;
 		}

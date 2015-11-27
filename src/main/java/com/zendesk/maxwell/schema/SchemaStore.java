@@ -290,7 +290,7 @@ public class SchemaStore {
 
 			ColumnDef c = ColumnDef.build(t.getName(),
 					cRS.getString("name"), cRS.getString("encoding"),
-					ColumnType.valueOf(cRS.getString("coltype")), i++,
+					cRS.getString("coltype"), i++,
 					cRS.getInt("is_signed") == 1,
 					enumValues);
 			t.addColumn(c);
