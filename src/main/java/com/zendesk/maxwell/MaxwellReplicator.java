@@ -266,7 +266,7 @@ public class MaxwellReplicator extends RunLoopProcess {
 
 
 	private void processQueryEvent(QueryEvent event) throws SchemaSyncError, SQLException, IOException {
-		// get encoding of the alter event somehow? or just fuck it.
+		// get encoding of the alter event somehow? or just ignore it.
 		String dbName = event.getDatabaseName().toString();
 		String sql = event.getSql().toString();
 
@@ -275,17 +275,29 @@ public class MaxwellReplicator extends RunLoopProcess {
 		if ( changes == null )
 			return;
 
+		Schema updatedSchema = this.schema;
+
 		for ( SchemaChange change : changes ) {
-			this.schema = change.apply(this.schema);
+			updatedSchema = change.apply(updatedSchema);
 		}
 
-		if ( changes.size() > 0 ) {
-			tableCache.clear();
+		if ( updatedSchema != this.schema) {
 			BinlogPosition p = eventBinlogPosition(event);
-			LOGGER.info("storing schema @" + p + " after applying \"" + sql.replace('\n',' ') + "\"");
-			try ( Connection c = this.context.getConnectionPool().getConnection() ) {
-				new SchemaStore(c, this.context.getServerID(), schema, p).save();
+			LOGGER.info("storing schema @" + p + " after applying \"" + sql.replace('\n', ' ') + "\"");
+
+			saveSchema(updatedSchema, p);
+		}
+	}
+
+	private void saveSchema(Schema updatedSchema, BinlogPosition p) throws SQLException {
+		this.schema = updatedSchema;
+		tableCache.clear();
+
+		if ( !this.context.getReplayMode() ) {
+			try (Connection c = this.context.getConnectionPool().getConnection()) {
+				new SchemaStore(c, this.context.getServerID(), this.schema, p).save();
 			}
+
 			this.context.setPositionSync(p);
 		}
 	}

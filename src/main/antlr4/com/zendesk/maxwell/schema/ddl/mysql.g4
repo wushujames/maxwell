@@ -1,7 +1,7 @@
 grammar mysql;
 import mysql_literal_tokens, mysql_idents, column_definitions, table_creation_options;
 
-parse: statement
+parse: statement?
        EOF;
 
 statement:
@@ -14,11 +14,8 @@ statement:
     | BEGIN
     ;
 
-
-
-
 create_database:
-	CREATE DATABASE if_not_exists? name (default_character_set | default_collate)*;
+	CREATE (DATABASE | SCHEMA) if_not_exists? name (default_character_set | default_collate)*;
 	
 create_table: 
     create_table_preamble 
@@ -27,7 +24,7 @@ create_table:
       | create_like_tbl
     );
     
-create_table_preamble: CREATE TEMPORARY? TABLE (IF NOT EXISTS)? table_name;
+create_table_preamble: CREATE TEMPORARY? TABLE if_not_exists? table_name;
 create_specifications: '(' create_specification (',' create_specification)* ')'; 
 
 create_specification: 
@@ -117,7 +114,7 @@ index_type_1:
 	index_or_key index_name? index_type? index_column_list index_options*;
 
 index_type_pk:
-	index_constraint? PRIMARY KEY index_type? index_column_list index_options*;
+	index_constraint? PRIMARY KEY (index_type | index_name)* index_column_list index_options*;
 
 index_type_3:	
 	index_constraint? UNIQUE index_or_key index_name? index_type? index_column_list index_options*;

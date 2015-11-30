@@ -3,13 +3,13 @@ package com.zendesk.maxwell.schema.columndef;
 public abstract class ColumnDef {
 	protected final String tableName;
 	protected final String name;
-	protected final String type;
+	protected final ColumnType type;
 	protected String[] enumValues;
 	private int pos;
 	public boolean signed;
 	public String encoding;
 
-	public ColumnDef(String tableName, String name, String type, int pos) {
+	public ColumnDef(String tableName, String name, ColumnType type, int pos) {
 		this.tableName = tableName;
 		this.name = name.toLowerCase();
 		this.type = type;
@@ -25,80 +25,86 @@ public abstract class ColumnDef {
 	}
 
 	public ColumnDef copy() {
-		return build(this.tableName, this.name, this.encoding, this.type, this.pos, this.signed, this.enumValues);
+		return build(this.tableName, this.name, this.encoding, this.type.name(), this.pos, this.signed, this.enumValues);
 	}
 
-	public static ColumnDef build(String tableName, String name, String encoding, String type, int pos, boolean signed, String enumValues[]) {
-		type = unalias_type(type);
+	public static ColumnDef build(String tableName, String name, String encoding, String typeString, int pos, boolean signed, String enumValues[]) {
+		ColumnType type;
+		try {
+			String upperTypeString = unalias_type(typeString.toUpperCase());
+			type = ColumnType.valueOf(upperTypeString);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("unsupported column type " + typeString);
+		}
 
 		switch(type) {
-		case "bool":
-		case "boolean":
-			type = "tinyint";
+		case BOOL:
+		case BOOLEAN:
+			type = ColumnType.TINYINT;
 			// fallthrough
-		case "tinyint":
-		case "smallint":
-		case "mediumint":
-		case "int":
+		case TINYINT:
+		case SMALLINT:
+		case MEDIUMINT:
+		case INT:
 			return new IntColumnDef(tableName, name, type, pos, signed);
-		case "bigint":
+		case BIGINT:
 			return new BigIntColumnDef(tableName, name, type, pos, signed);
-		case "tinytext":
-		case "text":
-		case "mediumtext":
-		case "longtext":
-		case "varchar":
-		case "char":
+		case TINYTEXT:
+		case TEXT:
+		case MEDIUMTEXT:
+		case LONGTEXT:
+		case VARCHAR:
+		case CHAR:
 			return new StringColumnDef(tableName, name, type, pos, encoding);
-		case "tinyblob":
-		case "blob":
-		case "mediumblob":
-		case "longblob":
-		case "binary":
-		case "varbinary":
+		case TINYBLOB:
+		case BLOB:
+		case MEDIUMBLOB:
+		case LONGBLOB:
+		case BINARY:
+		case VARBINARY:
 			return new StringColumnDef(tableName, name, type, pos, "binary");
-		case "real":
-		case "numeric":
-			type = "double";
+		case REAL:
+		case NUMERIC:
+			type = ColumnType.DOUBLE;
 			// fall through
-		case "float":
-		case "double":
+		case FLOAT:
+		case DOUBLE:
 			return new FloatColumnDef(tableName, name, type, pos);
-		case "decimal":
+		case DECIMAL:
 			return new DecimalColumnDef(tableName, name, type, pos);
-		case "date":
+		case DATE:
 			return new DateColumnDef(tableName, name, type, pos);
-		case "datetime":
-		case "timestamp":
+		case DATETIME:
+		case TIMESTAMP:
 			return new DateTimeColumnDef(tableName, name, type, pos);
-		case "year":
+		case YEAR:
 			return new YearColumnDef(tableName, name, type, pos);
-		case "time":
+		case TIME:
 			return new TimeColumnDef(tableName, name, type, pos);
-		case "enum":
+		case ENUM:
 			return new EnumColumnDef(tableName, name, type, pos, enumValues);
-		case "set":
+		case SET:
 			return new SetColumnDef(tableName, name, type, pos, enumValues);
-		case "bit":
+		case BIT:
 			return new BitColumnDef(tableName, name, type, pos);
-		default:
-			throw new IllegalArgumentException("unsupported column type " + type);
 		}
+
+		throw new IllegalArgumentException("unsupported column type " + typeString);
 	}
 
 	static private String unalias_type(String type) {
 		switch(type) {
-			case "int1":
-				return "tinyint";
-			case "int2":
-				return "smallint";
-			case "int3":
-				return "mediumint";
-			case "int4":
-			case "integer":
-				return "int";
-			case "int8":
-				return "bigint";
+			case "INT1":
+				return "TINYINT";
+			case "INT2":
+				return "SMALLINT";
+			case "INT3":
+				return "MEDIUMINT";
+			case "INT4":
+			case "INTEGER":
+				return "INT";
+			case "INT8":
+				return "BIGINT";
 			default:
 				return type;
 		}
@@ -112,7 +118,7 @@ public abstract class ColumnDef {
 		return tableName;
 	}
 
-	public String getType() {
+	public ColumnType getType() {
 		return type;
 	}
 

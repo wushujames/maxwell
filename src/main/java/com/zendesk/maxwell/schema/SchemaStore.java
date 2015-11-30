@@ -133,7 +133,7 @@ public class SchemaStore {
 					columnData.add(tableId);
 					columnData.add(c.getName());
 					columnData.add(c.getEncoding());
-					columnData.add(c.getType());
+					columnData.add(c.getType().name());
 					columnData.add(c.getSigned() ? 1 : 0);
 					columnData.add(enumValuesSQL);
 				}
@@ -244,6 +244,14 @@ public class SchemaStore {
 			this.schema.getDatabases().add(restoreDatabase(dbRS.getInt("id"), dbRS.getString("name"), dbRS.getString("encoding")));
 		}
 
+		if ( this.schema.findDatabase("mysql") == null ) {
+			LOGGER.info("Could not find mysql db, adding it to schema");
+			SchemaCapturer sc = new SchemaCapturer(connection, "mysql");
+			Database db = sc.capture().findDatabase("mysql");
+			this.schema.addDatabase(db);
+			shouldResave = true;
+		}
+
 		if ( shouldResave )
 			this.schema_id = saveSchema();
 	}
@@ -277,7 +285,7 @@ public class SchemaStore {
 		while (cRS.next()) {
 			String[] enumValues = null;
 			if ( cRS.getString("enum_values") != null )
-				enumValues = StringUtils.split(cRS.getString("enum_values"), ",");
+				enumValues = StringUtils.splitByWholeSeparatorPreserveAllTokens(cRS.getString("enum_values"), ",");
 
 			ColumnDef c = ColumnDef.build(t.getName(),
 					cRS.getString("name"), cRS.getString("encoding"),

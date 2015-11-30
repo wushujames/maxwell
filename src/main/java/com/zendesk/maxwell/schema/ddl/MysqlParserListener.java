@@ -185,8 +185,9 @@ public class MysqlParserListener extends mysqlBaseListener {
 	public void exitCreate_table_preamble(Create_table_preambleContext ctx) {
 		String dbName = getDB(ctx.table_name());
 		String tblName = getTable(ctx.table_name());
+		boolean ifNotExists = ctx.if_not_exists() != null;
 
-		TableCreate createStatement = new TableCreate(dbName, tblName);
+		TableCreate createStatement = new TableCreate(dbName, tblName, ifNotExists);
 		this.tableName = createStatement.tableName;
 
 		this.schemaChanges.add(createStatement);
@@ -278,7 +279,7 @@ public class MysqlParserListener extends mysqlBaseListener {
 		ColumnDef c = ColumnDef.build(this.tableName,
 					                   name,
 					                   colEncoding,
-					                   colType.toLowerCase(),
+					                   colType,
 					                   -1,
 					                   signed,
 					                   enumValues);

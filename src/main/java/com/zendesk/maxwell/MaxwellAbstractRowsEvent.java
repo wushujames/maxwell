@@ -1,13 +1,14 @@
 package com.zendesk.maxwell;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.io.StringWriter;
+import java.util.*;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.code.or.common.glossary.column.BitColumn;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -20,6 +21,8 @@ import com.google.code.or.common.glossary.column.DatetimeColumn;
 import com.zendesk.maxwell.schema.Database;
 import com.zendesk.maxwell.schema.Table;
 import com.zendesk.maxwell.schema.columndef.ColumnDef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // the main wrapper for a raw (AbstractRowEvent) binlog event.
 // decorates the event with metadata info from Table,
@@ -27,6 +30,7 @@ import com.zendesk.maxwell.schema.columndef.ColumnDef;
 // and ultimately outputs arrays of json objects representing each row.
 
 public abstract class MaxwellAbstractRowsEvent extends AbstractRowEvent {
+	static final Logger LOGGER = LoggerFactory.getLogger(MaxwellAbstractRowsEvent.class);
 	private final MaxwellFilter filter;
 	private final AbstractRowEvent event;
 
@@ -193,47 +197,6 @@ public abstract class MaxwellAbstractRowsEvent extends AbstractRowEvent {
 		return sql.toString();
 	}
 
-	class RowMap extends HashMap<String, Object> {
-		private final HashMap<String, Object> data;
-
-		public RowMap() {
-			this.data = new HashMap<String, Object>();
-			this.put("data", this.data);
-		}
-
-		public void setRowType(String type) {
-			this.put("type", type);
-		}
-
-		public void putData(String key, Object value) {
-			this.data.put(key,  value);
-		}
-
-		public void setTable(String name) {
-			this.put("table", name);
-		}
-
-		public void setDatabase(String name) {
-			this.put("database", name);
-		}
-
-		public void setTimestamp(Long l) {
-			this.put("ts", l);
-		}
-
-		public void setXid(Long xid) {
-			this.put("xid", xid);
-		}
-
-		public void setTXCommit() {
-			this.put("commit", true);
-		}
-
-		public Object getData(String string) {
-			return this.data.get(string);
-		}
-	}
-
 	public List<RowMap> jsonMaps() {
 		ArrayList<RowMap> list = new ArrayList<>();
 		Object value;
@@ -275,21 +238,28 @@ public abstract class MaxwellAbstractRowsEvent extends AbstractRowEvent {
 		return list;
 	}
 
-	public List<JSONObject> toJSONObjects() {
-		ArrayList<JSONObject> list = new ArrayList<>();
+	private static final JsonFactory jsonFactory = new JsonFactory();
 
-		for ( RowMap map : jsonMaps() ) {
-			list.add(new MaxwellJSONObject(map));
+	private JsonGenerator createJSONGenerator(ByteArrayOutputStream b) {
+		try {
+			return jsonFactory.createGenerator(b);
+		} catch (IOException e) {
+			LOGGER.error("Caught exception while creating JSON generator: " + e);
 		}
-		return list;
+		return null;
 	}
 
 	public List<String> toJSONStrings() {
 		ArrayList<String> list = new ArrayList<>();
 
 		for ( RowMap map : jsonMaps() ) {
-			list.add(new MaxwellJSONObject(map).toString());
+			try {
+				list.add(map.toJSON());
+			} catch ( IOException e ) {
+				LOGGER.error("Caught IOException while generating JSON: " + e, e);
+			}
 		}
+
 		return list;
 	}
 

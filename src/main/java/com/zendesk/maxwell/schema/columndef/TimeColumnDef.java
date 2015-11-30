@@ -5,7 +5,7 @@ import java.sql.Time;
 import com.google.code.or.common.util.MySQLConstants;
 
 public class TimeColumnDef extends ColumnDef {
-	public TimeColumnDef(String tableName, String name, String type, int pos) {
+	public TimeColumnDef(String tableName, String name, ColumnType type, int pos) {
 		super(tableName, name, type, pos);
 	}
 
@@ -20,4 +20,8 @@ public class TimeColumnDef extends ColumnDef {
 		return "'" + String.valueOf(t) + "'";
 	}
 
+	@Override
+	public Object asJSON(Object value) {
+		return String.valueOf((Time) value);
+	}
 }
