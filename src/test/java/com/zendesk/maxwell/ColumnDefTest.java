@@ -189,7 +189,7 @@ public class ColumnDefTest {
 		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_DATE));
 
 		Date date = new GregorianCalendar(1979, 10, 1).getTime();
-		assertThat(d.toSQL(date), is("''1979-11-01''"));
+		assertThat(d.toSQL(date), is("'1979-11-01'"));
 	}
 
 	@Test
@@ -199,10 +199,9 @@ public class ColumnDefTest {
 
 		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_DATETIME));
 
-		
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = simpleDateFormat.parse("1979-10-01 19:19:19");
+		Date date = simpleDateFormat.parse("1979-10-01 19:19:19");
 		assertThat(d.toSQL(date), is("'1979-10-01 19:19:19'"));
 	}
 
@@ -213,8 +212,8 @@ public class ColumnDefTest {
 
 		assertTrue(d.matchesMysqlType(MySQLConstants.TYPE_TIMESTAMP));
 
-		Timestamp t = new Timestamp(284066359);
-		assertThat(d.toSQL(t), is("'1970-01-04 06:54:26'"));
+		Timestamp t = new Timestamp(307653559000L);
+		assertThat(d.toSQL(t), is("'1979-10-01 19:19:19'"));
 	}
 
 }

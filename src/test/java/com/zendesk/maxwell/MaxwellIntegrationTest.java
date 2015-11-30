@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
-import com.zendesk.maxwell.MaxwellAbstractRowsEvent.RowMap;
-
 public class MaxwellIntegrationTest extends AbstractMaxwellTest {
 	public static final TypeReference<Map<String, Object>> MAP_STRING_OBJECT_REF = new TypeReference<Map<String, Object>>() {};
 
@@ -302,7 +300,7 @@ public class MaxwellIntegrationTest extends AbstractMaxwellTest {
 
 	@Test
 	public void testZeroCreatedAtJSON() throws Exception {
-		if ( server.getVersion().equals("5.5") ) // 5.6 not yet supported.
+		if ( server.getVersion().equals("5.5") ) // 5.6 not yet supported for this test
 			runJSONTestFile(getSQLDir() + "/json/test_zero_created_at");
 	}
 
@@ -324,5 +322,11 @@ public class MaxwellIntegrationTest extends AbstractMaxwellTest {
 	@Test
 	public void testBignum() throws Exception {
 		runJSONTestFile(getSQLDir() + "/json/test_bignum");
+	}
+
+	@Test
+	public void testTime() throws Exception {
+		if ( server.getVersion().equals("5.6") )
+			runJSONTestFile(getSQLDir() + "/json/test_time");
 	}
 }

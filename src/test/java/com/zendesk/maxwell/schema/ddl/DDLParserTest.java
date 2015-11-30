@@ -362,6 +362,13 @@ public class DDLParserTest {
 	}
 
 	@Test
+	public void testCreateSchema() {
+		List<SchemaChange> changes = parse("CREATE SCHEMA if not exists `foo`");
+		DatabaseCreate create = (DatabaseCreate) changes.get(0);
+		assertThat(create.dbName, is("foo"));
+	}
+
+	@Test
 	public void testCommentSyntax() {
 		List<SchemaChange> changes = parse("CREATE DATABASE if not exists `foo` default character set='latin1' /* generate by server */");
 		assertThat(changes.size(), is(1));
@@ -400,5 +407,18 @@ public class DDLParserTest {
 		TableCreate create = parseCreate("CREATE TABLE db (foo char(60) binary DEFAULT '' NOT NULL, PRIMARY KEY Host (foo,Db,User))");
 		assertThat(create, is(notNullValue()));
 		assertThat(create.pks.size(), is(3));
+	}
+
+	@Test
+	public void testCommentsThatAreNotComments() {
+		TableCreate create = parseCreate("CREATE TABLE /*! IF NOT EXISTS */ foo (id int primary key)");
+		assertThat(create, is(notNullValue()));
+		assertThat(create.ifNotExists, is(true));
+	}
+
+	@Test
+	public void testBinaryColumnDefaults() {
+		assertThat(parseCreate("CREATE TABLE foo (id boolean default true)"), is(notNullValue()));
+		assertThat(parseCreate("CREATE TABLE foo (id boolean default false)"), is(notNullValue()));
 	}
 }

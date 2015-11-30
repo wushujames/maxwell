@@ -197,47 +197,6 @@ public abstract class MaxwellAbstractRowsEvent extends AbstractRowEvent {
 		return sql.toString();
 	}
 
-	class RowMap extends HashMap<String, Object> {
-		private final HashMap<String, Object> data;
-
-		public RowMap() {
-			this.data = new HashMap<String, Object>();
-			this.put("data", this.data);
-		}
-
-		public void setRowType(String type) {
-			this.put("type", type);
-		}
-
-		public void putData(String key, Object value) {
-			this.data.put(key,  value);
-		}
-
-		public void setTable(String name) {
-			this.put("table", name);
-		}
-
-		public void setDatabase(String name) {
-			this.put("database", name);
-		}
-
-		public void setTimestamp(Long l) {
-			this.put("ts", l);
-		}
-
-		public void setXid(Long xid) {
-			this.put("xid", xid);
-		}
-
-		public void setTXCommit() {
-			this.put("commit", true);
-		}
-
-		public Object getData(String string) {
-			return this.data.get(string);
-		}
-	}
-
 	public List<RowMap> jsonMaps() {
 		ArrayList<RowMap> list = new ArrayList<>();
 		Object value;
@@ -290,58 +249,12 @@ public abstract class MaxwellAbstractRowsEvent extends AbstractRowEvent {
 		return null;
 	}
 
-	private final static String[] keyOrder = {"database", "table", "type", "ts"};
-
-	private void rowMapToJSON(JsonGenerator g, RowMap map) throws IOException {
-		g.writeStartObject(); // {
-
-		for ( String key: keyOrder ) {
-			g.writeObjectField(key, map.get(key)); // type: "insert"
-		}
-
-		if ( map.containsKey("xid") )
-			g.writeObjectField("xid", map.get("xid"));
-
-		if ( map.containsKey("commit") && (boolean) map.get("commit") == true)
-			g.writeBooleanField("commit", true);
-
-		g.writeObjectFieldStart("data");
-		for ( String key: map.data.keySet() ) {
-			Object data = map.getData(key);
-
-			if ( data == null )
-				continue;
-
-			if ( data instanceof List ) { // sets come back from .asJSON as lists, and jackson can't deal.
-				List<String> stringList = (List<String>) data;
-
-				g.writeArrayFieldStart(key);
-				for ( String s : stringList )  {
-					g.writeString(s);
-				}
-				g.writeEndArray();
-			} else {
-				g.writeObjectField(key, data);
-			}
-		}
-		g.writeEndObject(); // end of 'data: { }'
-
-		g.writeEndObject();
-	}
-
 	public List<String> toJSONStrings() {
 		ArrayList<String> list = new ArrayList<>();
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		JsonGenerator g = createJSONGenerator(b);
-
-		g.setRootValueSeparator(null);
 
 		for ( RowMap map : jsonMaps() ) {
 			try {
-				rowMapToJSON(g, map);
-				g.flush();
-				list.add(b.toString());
-				b.reset();
+				list.add(map.toJSON());
 			} catch ( IOException e ) {
 				LOGGER.error("Caught IOException while generating JSON: " + e, e);
 			}

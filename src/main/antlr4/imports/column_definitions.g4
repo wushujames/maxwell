@@ -19,8 +19,8 @@ data_type:
 	
 // all from http://dev.mysql.com/doc/refman/5.1/en/create-table.html
 generic_type:
-	  col_type=(BIT | BINARY | YEAR) length? column_options*
-	| col_type=(DATE | TIME | TIMESTAMP | DATETIME | TINYBLOB | MEDIUMBLOB | LONGBLOB | BLOB |  BOOLEAN | BOOL ) column_options*
+	  col_type=(BIT | BINARY | YEAR | TIME | TIMESTAMP | DATETIME) length? column_options*
+	| col_type=(DATE | TINYBLOB | MEDIUMBLOB | LONGBLOB | BLOB |  BOOLEAN | BOOL ) column_options*
 	| col_type=VARBINARY length column_options*
 	;
 
@@ -75,7 +75,7 @@ character_set: ((CHARACTER SET) | CHARSET) charset_name;
 collation: COLLATE '='? (IDENT | STRING_LITERAL | QUOTED_IDENT);
 
 nullability: (NOT NULL | NULL);
-default_value: DEFAULT (literal | NULL | CURRENT_TIMESTAMP);
+default_value: DEFAULT (literal | NULL | CURRENT_TIMESTAMP | TRUE | FALSE);
 length: '(' INTEGER_LITERAL ')';
 int_flags: ( UNSIGNED | ZEROFILL );
 decimal_length: '(' INTEGER_LITERAL ( ',' INTEGER_LITERAL )? ')';
