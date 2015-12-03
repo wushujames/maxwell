@@ -17,12 +17,12 @@ public class BigIntColumnDef extends ColumnDef {
 		return type == MySQLConstants.TYPE_LONGLONG;
 	}
 
-	private Object toNumeric(Object value) {
+	public BigInteger toNumeric(Object value) {
         Long l = (Long)value;
         if ( l < 0 && !signed )
         	return longlong_max.add(BigInteger.valueOf(l));
         else
-            return Long.valueOf(l);
+            return BigInteger.valueOf(l);
 	}
 	@Override
 	public String toSQL(Object value) {
