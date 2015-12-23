@@ -6,7 +6,7 @@ import com.zendesk.maxwell.RowMap;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class ProfilerProducer extends AbstractProducer {
+public class ProfilerProducer extends AbstractJsonProducer {
 	private long count;
 	private long startTime;
 	private FileOutputStream nullOutputStream;

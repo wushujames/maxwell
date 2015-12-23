@@ -8,7 +8,7 @@ import com.zendesk.maxwell.MaxwellAbstractRowsEvent;
 import com.zendesk.maxwell.MaxwellContext;
 import com.zendesk.maxwell.RowMap;
 
-public class FileProducer extends AbstractProducer {
+public class FileProducer extends AbstractJsonProducer {
 	private final File file;
 	private final FileWriter fileWriter;
 

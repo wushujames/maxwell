@@ -5,7 +5,7 @@ import com.zendesk.maxwell.MaxwellContext;
 import com.zendesk.maxwell.RowMap;
 import com.zendesk.maxwell.producer.AbstractProducer;
 
-public class StdoutProducer extends AbstractProducer {
+public class StdoutProducer extends AbstractJsonProducer {
 	public StdoutProducer(MaxwellContext context) {
 		super(context);
 	}

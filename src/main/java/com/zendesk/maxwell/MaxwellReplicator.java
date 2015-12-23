@@ -11,11 +11,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import com.google.code.or.binlog.impl.event.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.code.or.OpenReplicator;
 import com.google.code.or.binlog.BinlogEventV4;
+import com.google.code.or.common.glossary.Row;
 import com.google.code.or.common.util.MySQLConstants;
 import com.zendesk.maxwell.producer.AbstractProducer;
 import com.zendesk.maxwell.schema.Schema;
@@ -86,7 +88,7 @@ public class MaxwellReplicator extends RunLoopProcess {
 	}
 
 	public void work() throws Exception {
-		RowMap row = getRow();
+		RowWithEvent row = getRow();
 
 		context.ensurePositionThread();
 
@@ -107,8 +109,8 @@ public class MaxwellReplicator extends RunLoopProcess {
 	}
 
 
-	private boolean skipRow(RowMap row) {
-		return row.getDatabase().equals("maxwell");
+	private boolean skipRow(RowWithEvent rowWithEvent) {
+		return rowWithEvent.getTable().getDatabase().equals("maxwell");
 	}
 
 	private BinlogPosition eventBinlogPosition(AbstractBinlogEventV4 event) {
@@ -154,11 +156,11 @@ public class MaxwellReplicator extends RunLoopProcess {
 	private static Pattern createTablePattern =
 			Pattern.compile("^CREATE\\s+TABLE", Pattern.CASE_INSENSITIVE);
 
-	private RowMapBuffer getTransactionRows() throws Exception {
+	private RowWithEventBuffer getTransactionRows() throws Exception {
 		BinlogEventV4 v4Event;
 		MaxwellAbstractRowsEvent event;
 
-		RowMapBuffer buffer = new RowMapBuffer(MAX_TX_ELEMENTS);
+		RowWithEventBuffer buffer = new RowWithEventBuffer(MAX_TX_ELEMENTS);
 
 		while ( true ) {
 			v4Event = pollV4EventFromQueue();
@@ -181,8 +183,10 @@ public class MaxwellReplicator extends RunLoopProcess {
 					event = processRowsEvent((AbstractRowEvent) v4Event);
 
 					if ( event.matchesFilter() ) {
-						for ( RowMap r : event.jsonMaps() )
-							buffer.add(r);
+						for ( Row r : event.filteredRows()) {
+							RowWithEvent rowWithEvent = new RowWithEvent(r, event);
+							buffer.add(rowWithEvent);
+						}
 					}
 
 					setReplicatorPosition(event);
@@ -228,9 +232,9 @@ public class MaxwellReplicator extends RunLoopProcess {
 		}
 	}
 
-	private RowMapBuffer rowBuffer;
+	private RowWithEventBuffer rowBuffer;
 
-	public RowMap getRow() throws Exception {
+	public RowWithEvent getRow() throws Exception {
 		BinlogEventV4 v4Event;
 
 		while (true) {

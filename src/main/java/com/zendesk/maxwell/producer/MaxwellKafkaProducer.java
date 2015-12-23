@@ -54,7 +54,7 @@ class KafkaCallback implements Callback {
 	}
 }
 
-public class MaxwellKafkaProducer extends AbstractProducer {
+public class MaxwellKafkaProducer extends AbstractJsonProducer {
 	static final Object KAFKA_DEFAULTS[] = {
 		"compression.type", "gzip",
 		"metadata.fetch.timeout.ms", 5000
